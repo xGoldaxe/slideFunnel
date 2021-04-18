@@ -1,0 +1,14 @@
+header {
+    background: rgb(56, 55, 55);
+    color: white;
+    width: 100%;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+        height: 60%;
+        border-right: 2px solid $lightText;
+        padding: 0 10px;
+    }
+}

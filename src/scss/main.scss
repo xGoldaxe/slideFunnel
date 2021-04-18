@@ -1,0 +1,23 @@
+//utils
+@import './utils/fonts.scss';
+@import './utils/colors.scss';
+
+//components
+@import './components/header.scss';
+@import './components/pagesManager.scss';
+@import './components/windowWork.scss';
+@import './components/previewSlide.scss';
+@import './components/previewBox.scss';
+@import './components/workshop.scss';
+@import './components/designManager.scss';
+@import './components/magnetLine.scss';
+
+//uiKit
+@import './uiKit/button.scss';
+@import './uiKit/horizontalTab.scss';
+@import './uiKit/rightClickMenu.scss';
+@import './uiKit/selector.scss';
+
+
+//base
+@import './bases/base.scss';

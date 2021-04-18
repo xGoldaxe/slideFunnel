@@ -1,0 +1,52 @@
+.horizontalTab {
+    width: 100%;
+    cursor: pointer;
+    height: 35px;
+    &:hover {
+        background: $lightGrey;
+    }
+    &--focus {
+        background: lighten($blue,30%);
+        &:hover {
+            background: lighten($blue,30%);
+        }
+    }
+
+    input {
+        font-size: 16px;
+        font-family: DnProMedium;
+        padding: 0 0 0 3px;
+        margin-left: 5px;
+        border: none;
+        height: max-content;
+        flex-grow: 1;
+        height: 100%;
+        outline: none;
+        background: white;
+        border: 2px solid $blue;
+        box-sizing: border-box;
+        border-radius: 2px;
+    }
+}
+
+.pageTab {
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    position: relative;
+    &__selectBox {
+        width: 12px;
+        height: 12px;
+        position: absolute;
+        left: 12px;
+        bottom: 15px;
+        img {
+            width: 12px;
+            height: 12px;
+        }
+    }
+    p {
+        padding-left: 10px;
+    }
+}

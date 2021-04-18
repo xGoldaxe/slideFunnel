@@ -1,0 +1,39 @@
+.selector {
+    position: relative;
+    // &__bg {
+    //     position: absolute;
+    //     width: 100vw;
+    //     height: 100vw;
+    //     top: 0;
+    //     left: 0;
+    //     background: grey;
+    // }
+    &__frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 2px solid $blue;
+        box-sizing: border-box;
+        cursor: pointer;
+        &__left {
+            cursor: e-resize;
+            width: 20px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateX(-50%);
+        }
+        &__right {
+            cursor: e-resize;
+            width: 20px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translateX(50%);
+        }
+    }
+}

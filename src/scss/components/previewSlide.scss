@@ -1,0 +1,10 @@
+.previewSlide {
+    height: 100%;
+    flex-grow: 1;
+    background: rgb(219, 215, 215);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}

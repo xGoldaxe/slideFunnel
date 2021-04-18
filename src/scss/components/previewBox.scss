@@ -1,0 +1,11 @@
+.previewBox {
+    width: 1000px;
+    height: 700px;
+    position: absolute;
+
+    font-size: 3em;
+    // here is the basic rules for some elements
+    p {
+        overflow-wrap: break-word;
+    }
+}

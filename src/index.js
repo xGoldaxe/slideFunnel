@@ -1,17 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import './scss/main.scss';
+import  {SlideProvider} from './context/slideContext'
+import  {EditorProvider} from './context/editorContext'
+import { RightClickMenuProvider } from './context/rightClickMenuContext';
+import RightClickMenu from './components/rightClickMenu';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <RightClickMenuProvider>
+    <SlideProvider>
+      <EditorProvider>
+        <React.StrictMode>
+            <App />
+            <RightClickMenu />
+        </React.StrictMode>
+      </EditorProvider>
+    </SlideProvider>
+  </RightClickMenuProvider>
+  ,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

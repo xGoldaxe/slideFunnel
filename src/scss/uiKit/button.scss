@@ -1,0 +1,11 @@
+.uiButton {
+    background: white;
+    width: 100%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 5px 0;;
+    &:hover {
+        background: $lightGrey;
+    }
+}

@@ -1,0 +1,21 @@
+.windowWork {
+    width: 270px;
+    height: 100%;
+    &__nav {
+        padding: 10px 0;
+        border-bottom: 2px solid $grey;
+        font-size: 25px;
+        ul {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+        }
+        &__tab {
+            cursor: pointer;
+            color: $lightText;
+            &--focus {
+                color: black;
+            }
+        }
+    }
+}
