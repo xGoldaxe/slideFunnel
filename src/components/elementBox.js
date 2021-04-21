@@ -1,7 +1,11 @@
+import { flatten, flattenDeep } from 'lodash';
 import React, {useContext, useState, useEffect, useRef} from 'react'
 import { EditorContext } from '../context/editorContext';
 import { SlideContext } from '../context/slideContext';
-import testGridMagnet, { getMagnetLines } from '../lib/testGridManget';
+import { hydrateMagnetLines } from '../lib/grid/getMagnetLines';
+import testGridMagnet, { getMagnetLines, getPossibleLinesDirection, testSingleLine } from '../lib/testGridManget';
+import { generateMagnetRectangleLines, generateRectangleLines } from '../lib/utils/geometry';
+import { newArrayForEach } from '../lib/utils/utils';
 
 export default function ElementBox({index, element}) {
     const editor = useContext(EditorContext);
@@ -21,6 +25,7 @@ export default function ElementBox({index, element}) {
     const focus = editor.content.focus.key === index && editor.content.focus.type === type;
     
     var page = editor.content.page;
+    var slidePage = slide.content.pages[page];
     var previewBoxScale = editor.content.previewBoxScale;
     let variables = element.variables
 
@@ -47,8 +52,8 @@ export default function ElementBox({index, element}) {
 
     function modifyInitCoord(e) {
         var page = editor.content.page;
-        var top = slide.content.pages[page].elements[index].variables.top;
-        var left = slide.content.pages[page].elements[index].variables.left;
+        var top = slide.content.pages[page].elements[index].variables.y;
+        var left = slide.content.pages[page].elements[index].variables.x;
         setInitCoord({mouseX: e.pageX,mouseY: e.pageY, objX: left, objY: top})
     }
 
@@ -61,20 +66,32 @@ export default function ElementBox({index, element}) {
 
 
     function handleMouseMouve(e) {
+        var {grid,magnetPow} = editor.content.previewBox;
+        var otherElements = [...slidePage.elements]
+
+        otherElements.splice(index, 1)
+        var elementsGrid = newArrayForEach(otherElements, (element) => {
+            var {x,y,width,height} = element.variables
+            return generateMagnetRectangleLines({x,y,width,height})
+        })
+        var grid = [...grid, ...flatten(elementsGrid)]
+        
         if(onResizing) {
             var movementX = (e.pageX - initCoord.mouseX) * previewBoxScale;
             // var actualWidthDiff = initCoord.objX + movementX;
-
-            
-            var movement
+            var origin = initCoord.objX;
             if(onResizing === 'right') {
-                movement = movementX;
+                let modifyPoint = (width + movementX) + origin;
+                var newPoint = testSingleLine({grid, magnetPow})(modifyPoint).point;
+                slide.changeElement(page , index, 'width', newPoint - origin);
             }
             if(onResizing === 'left') {
-                movement = -movementX;
-                slide.changeElement(page , index, 'left', initCoord.objX + -movement);
+                let modifyPoint = origin + movementX;
+                var cutPoint = testSingleLine({grid, magnetPow})(modifyPoint).point;
+                
+                slide.changeElement(page , index, 'x', cutPoint);
+                slide.changeElement(page , index, 'width', width + (origin - cutPoint));
             }
-            slide.changeElement(page , index, 'width', width + movement);
         } else if(onListen) {
                 var movementX = (e.pageX - initCoord.mouseX) * previewBoxScale;
                 var movementY = (e.pageY - initCoord.mouseY) * previewBoxScale;
@@ -82,22 +99,21 @@ export default function ElementBox({index, element}) {
                 actualCoord.y = initCoord.objY + movementY;
                 actualCoord.x = initCoord.objX + movementX;
 
-                let {grid,magnetPow} = editor.content.previewBox
                 var newObjMovement = testGridMagnet({grid, magnetPow})({
                     x: actualCoord.x,
                     y: actualCoord.y,
                     width: element.variables.width,
-                    height: elementRef.current.offsetHeight
+                    height: element.variables.height
                 })
-                //its mean that height for p is only known in the frontend, maybe try to find a function to know it with the police, the font size, the padding, the font height, ect..
-                //magnetlines
-                var magnetLines = {x: newObjMovement.x.magnetLine ? [...newObjMovement.x.magnetLine] : [],
-                    y: newObjMovement.y.magnetLine ? [...newObjMovement.y.magnetLine] : []
-                }
-                editor.changeMagnetLines(magnetLines)
-                //
-                slide.changeElement(page , index, 'top', newObjMovement.y.point);
-                slide.changeElement(page , index, 'left', newObjMovement.x.point);
+
+                editor.changeMagnetLines(hydrateMagnetLines(grid, generateMagnetRectangleLines({
+                    x: newObjMovement.x.point,
+                    y: newObjMovement.y.point,
+                    width: element.variables.width,
+                    height: element.variables.height
+                })))
+                slide.changeElement(page , index, 'y', newObjMovement.y.point);
+                slide.changeElement(page , index, 'x', newObjMovement.x.point);
         }
     }
 
@@ -120,8 +136,8 @@ export default function ElementBox({index, element}) {
     onMouseDown={(e) => onMouseDown(e)}
     style={{
         position: 'absolute',
-        top: variables.top,
-        left: variables.left,
+        top: variables.y,
+        left: variables.x,
     }}
     >
         {focus && 
@@ -156,7 +172,7 @@ const TextContent = React.forwardRef(({variables, value}, ref) => {
         fontSize: `${variables.size/100 * 3}vw`,
         textAlign: variables.textAlign,
         width: `${variables.width}px`,
-        lineHeight: `${variables.fontHeight}%`,
+        height: `${variables.height}px`,
         letterSpacing: `${variables.letterSpacing/10}vw`,
         padding: `${variables.paddingColumn}px ${variables.paddingRow}px`
     }}>

@@ -31,10 +31,12 @@ export const editorReducer = (state , action) => {
     }
 
     if(action.type === "CHANGE_MAGNET_LINE") {
-        if(action.payload.magnetLines.x) {
+
+        if(action.payload.magnetLines) {
             state.previewBox.magnetLines = action.payload.magnetLines;
+
         } else {
-            state.previewBox.magnetLines = {x: [], y: []}
+            state.previewBox.magnetLines = []
         }
         return {...state}
     }

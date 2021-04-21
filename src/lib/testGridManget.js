@@ -1,41 +1,62 @@
 import { curry } from "lodash";
-import { findAndReturn, newArrayForEach, testInterval, comparePropSendOtherProp } from "./utils/utils";
+import { gapBeetweenParallel, isParallel } from "./utils/geometry";
+import { findAndReturn, newArrayForEach, testInterval, comparePropSendOtherProp, testArrayWithArgs, returnPropEqual } from "./utils/utils";
 
-export default function testGridMagnet({grid,magnetPow}) {
+export default function testGridForMovement({grid,magnetPow}) {
     return function testWithValue({x,y, width, height}) {
         var magnetPoint = {}
-        magnetPoint.x = testObj({point:x, width:width})({grid: grid.x, magnetPow})
-        magnetPoint.y = testObj({point:y, width:height})({grid: grid.y, magnetPow})
+        magnetPoint.x = getPossibleLinesDirection(magnetPow, grid, 'x', x, width)
+        magnetPoint.y = getPossibleLinesDirection(magnetPow, grid, 'y', y, height)
         return magnetPoint
     }
 }
 
-export function testObj(obj) {
-    return function testThisObj({grid, magnetPow}) {
-        var {point,width} = obj;
-        var testingPoints = getThreePoints(point, width)
-        var testGridSetUp = testGrid({grid, magnetPow})
-        var possibleLines = newArrayForEach(testingPoints, testGridSetUp)
-
-        if(possibleLines.length) {
-            var optimalLine = possibleLines.sort((a, b) => a.diff - b.diff)[0]
-            return {
-                point: optimalLine.newPoint - (optimalLine.oldPoint - point),
-                magnetLine: newArrayForEach(possibleLines, comparePropSendOtherProp(optimalLine, {compare: 'diff', send: 'newPoint'}))
-            }
-        } 
-        return {
-            point: point,
-            magnetLine: false
-        }
+export function testSingleLine({grid, magnetPow}) {
+    return function testSingleLine(point) {
+        var newGrid = getGridPoints(grid)('x')
+        return getPossibleLines(magnetPow, newGrid, [point], point)
     }
 }
+
+export function getPossibleLinesDirection(magnetPow, grid, direction, point, width) {
+    var singleDirGrid = getGridPoints(grid)(direction);
+    return getPossibleLines(magnetPow, singleDirGrid)(getThreePoints(point, width), point, direction)
+}
+
+export function getGridPoints(grid) {
+    return function getGridPoints(direction) {
+        return testArrayWithArgs(grid, returnPropEqual)(direction)
+    }
+}
+
+export var getPossibleLines = curry(
+    function getPossibleLinesCurry (magnetPow, grid, arrayPoints, point) {
+        var possibleLines = newArrayForEach(arrayPoints)(testGrid({grid , magnetPow}));
+        return sortLines(possibleLines, point)
+    },
+4)
+
+export function sortLines(possibleLines, point) {
+    if(possibleLines.length) {
+        var optimalLine = possibleLines.sort((a, b) => a.diff - b.diff)[0]
+        return {
+            point: optimalLine.newPoint - (optimalLine.oldPoint - point),
+            magnetLine: newArrayForEach(possibleLines, comparePropSendOtherProp(optimalLine, {compare: 'diff', send: 'newPoint'}))
+        }
+    } 
+    return {
+        point: point,
+        magnetLine: false
+    }
+}
+
+
 
 function testGrid({grid, magnetPow}) {
     return function setUpTestGrid(actualPoint) {
         const testPointWithSetUp = testPoint(magnetPow)(actualPoint)
-        var newPoint = findAndReturn(actualPoint)(grid)(testPointWithSetUp)
-        return newPoint !== actualPoint ? {
+        var newPoint = grid.find(testPointWithSetUp)
+        return newPoint !== undefined ? {
             newPoint: newPoint,
             oldPoint: actualPoint,
             diff: newPoint - actualPoint

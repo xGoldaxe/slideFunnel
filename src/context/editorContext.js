@@ -1,6 +1,14 @@
+import { split } from 'lodash';
 import React, {createContext, useReducer, useCallback} from 'react';
+import { createGridLines } from '../lib/grid/grid';
+import { arrayInterval, newArrayForEach } from '../lib/utils/utils';
 import {editorReducer} from '../reducer/editorReducer';
 export const EditorContext = createContext(null);
+
+const setup = {
+    width: 1000,
+    height: 700
+}
 
 export const EditorProvider = ({children}) => {
     const initialeState = {
@@ -12,19 +20,10 @@ export const EditorProvider = ({children}) => {
         },
         previewBox: {
             scale: 1,
-            grid: {
-                x: [0, 100, 200 ,300 ,400 ,500 ,600 ,700 ,800 ,900 ,1000],
-                y: [0, 100, 200 ,300 ,400 ,500 ,600, 700]
-            },
-            size: {
-                width: 1000,
-                height: 700
-            },
-            magnetPow: 8,
-            magnetLines: {
-                x: [],
-                y: []
-            }
+            grid: createGridLines(setup),
+            size: {width:setup.width, height:setup.height},
+            magnetPow: 3,
+            magnetLines: []
         },
         inputSession: {
             activate: false,
